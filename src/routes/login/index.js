@@ -26,8 +26,8 @@ class LoginLayout extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			email: 'demo@gogo.com',
-			password: 'gogo123',
+			email: '',
+			password: '',
 		};
 		this.locale = props.locale;
 		this.handleChange = this.handleChange.bind(this);
@@ -78,12 +78,12 @@ class LoginLayout extends Component {
 										</p>
 									</div>
 									<div className="form-side">
-										<p style={{ 'margin-left': '70%' }}>
+										<p style={{ marginLeft: '70%' }}>
 											<IntlMessages id="general.change-locale" />
 										</p>
 										<UncontrolledDropdown
 											className=""
-											style={{ 'margin-left': '85%' }}
+											style={{ marginLeft: '85%' }}
 										>
 											<DropdownToggle
 												caret
@@ -120,11 +120,16 @@ class LoginLayout extends Component {
 													type="email"
 													defaultValue={this.state.email}
 													onChange={this.handleChange}
+													autocomplete="username"
 												/>
 												<IntlMessages id="user.email" />
 											</Label>
 											<Label className="form-group has-float-label mb-4">
-												<Input type="password" onChange={this.handleChange} />
+												<Input
+													type="password"
+													autocomplete="current-password"
+													onChange={this.handleChange}
+												/>
 												<IntlMessages
 													id="user.password"
 													defaultValue={this.state.password}

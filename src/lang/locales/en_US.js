@@ -42,6 +42,10 @@ module.exports = {
 	'menu.todo': 'Todo',
 	'menu.search': 'Search',
 
+	'menu.projectsCreated': 'Projects',
+	'menu.user': 'Search',
+	'menu.support': 'Search',
+
 	/* 04.Error Page */
 	'layouts.error-title': 'Ooops... looks like an error occurred!',
 	'layouts.error-code': 'Error code',

@@ -12,9 +12,9 @@ class RegisterLayout extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			email: 'demo@gogo.com',
-			password: 'gogo123',
-			name: 'Sarah Kortney',
+			email: '',
+			password: '',
+			name: '',
 		};
 		this.handleChange = this.handleChange.bind(this);
 	}
@@ -69,6 +69,7 @@ class RegisterLayout extends Component {
 													type="name"
 													defaultValue={this.state.name}
 													onChange={this.handleChange}
+													autocomplete="name"
 												/>
 												<IntlMessages id="user.fullname" />
 											</Label>
@@ -77,6 +78,7 @@ class RegisterLayout extends Component {
 													type="email"
 													defaultValue={this.state.email}
 													onChange={this.handleChange}
+													autocomplete="email"
 												/>
 												<IntlMessages id="user.email" />
 											</Label>
@@ -85,6 +87,7 @@ class RegisterLayout extends Component {
 												<IntlMessages
 													id="user.password"
 													defaultValue={this.state.password}
+													autocomplete="new-password"
 												/>
 											</Label>
 											<div className="d-flex justify-content-end align-items-center">
