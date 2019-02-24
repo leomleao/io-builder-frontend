@@ -39,6 +39,9 @@ import axios from 'axios';
 
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 
+import { firestoreConnect } from 'react-redux-firebase';
+import { compose } from 'redux';
+
 import { getProjectList } from 'Redux/actions';
 
 function collect(props) {
@@ -49,6 +52,7 @@ const apiUrl = 'http://api.crealeaf.com/cakes/paging';
 class DataListLayout extends Component {
 	constructor(props) {
 		super(props);
+		console.info(props);
 		this.toggleDisplayOptions = this.toggleDisplayOptions.bind(this);
 		this.toggleSplit = this.toggleSplit.bind(this);
 		this.dataListRender = this.dataListRender.bind(this);
@@ -82,10 +86,6 @@ class DataListLayout extends Component {
 			displayOptionsIsOpen: false,
 			isLoading: false,
 		};
-	}
-
-	componentDidMount() {
-		this.props.getProjectList();
 	}
 	componentWillMount() {
 		this.props.bindShortcut(['ctrl+a', 'command+a'], () =>
@@ -223,6 +223,7 @@ class DataListLayout extends Component {
 	}
 	componentDidMount() {
 		this.dataListRender();
+		this.props.getProjectList(this.props.user);
 	}
 
 	dataListRender() {
@@ -373,7 +374,7 @@ class DataListLayout extends Component {
 														this.state.selectedItems.length >=
 														this.state.items.length
 													}
-													onClick={() => this.handleChangeSelectAll(true)}
+													onChange={() => this.handleChangeSelectAll(true)}
 												/>
 												<span
 													className={`custom-control-label ${
@@ -778,15 +779,18 @@ class DataListLayout extends Component {
 	}
 }
 
-const mapStateToProps = ({ authUser, settings }) => {
+const mapStateToProps = ({ authUser, settings, project }) => {
 	const { user } = authUser;
 	const { locale } = settings;
-	return { user, locale };
+	return { user, locale, project };
 };
 
-export default connect(
-	mapStateToProps,
-	{
-		getProjectList,
-	},
+export default compose(
+	// firestoreConnect([{ collection: 'projects' }]),
+	connect(
+		mapStateToProps,
+		{
+			getProjectList,
+		},
+	),
 )(injectIntl(mouseTrap(DataListLayout)));

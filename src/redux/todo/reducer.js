@@ -43,7 +43,6 @@ export default (state = INIT_STATE, action) => {
 			return {
 				...state,
 				loading: true,
-				allTodoItems: action.payload,
 				todoItems: action.payload,
 			};
 

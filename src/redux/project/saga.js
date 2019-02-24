@@ -2,10 +2,10 @@ import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
 import { PROJECT_GET_LIST } from 'Constants/actionTypes';
 import { getProjectListSuccess, getProjectListError } from './actions';
 
+import rsf from '../firestore';
 import todoData from '../../data/todos.json';
-import { rsf } from '../firestore';
 
-// const getProjectListRequest = async ownerId => {
+// const getProjectListRequest = async () => {
 // 	return await new Promise((success, fail) => {
 // 		setTimeout(() => {
 // 			success(todoData.data);
@@ -15,22 +15,38 @@ import { rsf } from '../firestore';
 // 		.catch(error => error);
 // };
 
-function* getProjectListRequest() {
-	const snapshot = yield call(rsf.firestore.getCollection, 'projects');
-	let projects;
-	snapshot.forEach(project => {
-		projects = {
-			...projects,
-			[project.id]: project.data(),
-		};
-	});
+// const getProjectListRequest = async () => {
+// 	console.log('LAROUUUU');
+// 	return await new Promise(async (success, fail) => {
+// 		const snapshot = await rsf.firestore.getCollection('projects');
+// 		const snapshot = yield call(rsf.firestore.getCollection, 'users');
+// 		let projects;
+// 		console.info(snapshot);
+// 		// await snapshot.docs.forEach(project => {
+// 		// 	projects = {
+// 		// 		...projects,
+// 		// 		[project.id]: project.data(),
+// 		// 	};
+// 		// });
+// 		success(projects);
+// 	})
+// 		.then(projects => projects)
+// 		.catch(error => error);
+// };
 
-	yield put(getProjectListSuccess(projects));
+function* getProjectListRequest(ownerId) {
+	console.info(ownerId);
+	const userProjects = yield call(
+		rsf.firestore.getDocument,
+		'projects/' + ownerId,
+	);
+
+	return userProjects.data().projects;
 }
 
-function* getProjectListItems() {
+function* getProjectListItems({ payload }) {
 	try {
-		const response = yield call(getProjectListRequest);
+		const response = yield call(getProjectListRequest, payload);
 		yield put(getProjectListSuccess(response));
 	} catch (error) {
 		yield put(getProjectListError(error));

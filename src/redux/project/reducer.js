@@ -5,10 +5,16 @@ import {
 } from 'Constants/actionTypes';
 
 const INIT_STATE = {
-	allProjectItems: null,
+	allTodoItems: null,
 	projects: null,
+	project: null,
 	error: '',
+	filter: null,
+	searchKeyword: '',
+	orderColumn: null,
 	loading: false,
+	categories: ['Flexbox', 'Sass', 'React'],
+	selectedItems: [],
 };
 
 export default (state = INIT_STATE, action) => {
@@ -20,8 +26,8 @@ export default (state = INIT_STATE, action) => {
 			return {
 				...state,
 				loading: true,
-				allProjectItems: action.payload,
-				projectItems: action.payload,
+				project: action.payload,
+				projects: action.payload,
 			};
 
 		case PROJECT_GET_LIST_ERROR:

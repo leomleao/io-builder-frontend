@@ -6,11 +6,12 @@ import {
 
 export const getProjectList = ownerUid => ({
 	type: PROJECT_GET_LIST,
+	payload: ownerUid,
 });
 
-export const getProjectListSuccess = items => ({
+export const getProjectListSuccess = projects => ({
 	type: PROJECT_GET_LIST_SUCCESS,
-	payload: items,
+	payload: projects,
 });
 
 export const getProjectListError = error => ({
