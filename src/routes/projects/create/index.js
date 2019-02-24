@@ -6,10 +6,6 @@ import {
 	Card,
 	CustomInput,
 	Button,
-	Modal,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
 	ButtonDropdown,
 	UncontrolledDropdown,
 	Collapse,
@@ -24,6 +20,12 @@ import {
 	CardText,
 	Badge,
 } from 'reactstrap';
+import Autosuggest from 'react-autosuggest';
+import AutosuggestHighlightMatch from 'autosuggest-highlight/match';
+import AutosuggestHighlightParse from 'autosuggest-highlight/parse';
+
+import ReactAutosuggest from 'Components/ReactAutosuggest';
+
 import { NavLink } from 'react-router-dom';
 import Select from 'react-select';
 import CustomSelectInput from 'Components/CustomSelectInput';
@@ -42,12 +44,58 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 
-import { getProjectList } from 'Redux/actions';
+import { addProject } from 'Redux/actions';
+import currentDB from '../../../data/currentDB.json';
 
 function collect(props) {
 	return { data: props.data };
 }
 const apiUrl = 'http://api.crealeaf.com/cakes/paging';
+
+function escapeRegexCharacters(str) {
+	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getSuggestions(value) {
+	const escapedValue = escapeRegexCharacters(value.trim());
+
+	if (escapedValue === '') {
+		return [];
+	}
+
+	const regex = new RegExp('\\b' + escapedValue, 'i');
+
+	return currentDB.filter(material => regex.test(getSuggestionValue(material)));
+}
+
+function getSuggestionValue(suggestion) {
+	return `${suggestion.description} ${suggestion.useCase}`;
+}
+
+function renderSuggestion(suggestion, { query }) {
+	const suggestionText = `${suggestion.description} ${suggestion.useCase}`;
+	const matches = AutosuggestHighlightMatch(suggestionText, query);
+	const parts = AutosuggestHighlightParse(suggestionText, matches);
+	var divStyle = {
+		backgroundImage: 'url(' + suggestion.image + ')',
+	};
+
+	return (
+		<span className="suggestion-content" style={divStyle}>
+			<span className="name">
+				{parts.map((part, index) => {
+					const className = part.highlight ? 'highlight' : null;
+
+					return (
+						<span className={className} key={index}>
+							{part.text}
+						</span>
+					);
+				})}
+			</span>
+		</span>
+	);
+}
 
 class DataListLayout extends Component {
 	constructor(props) {
@@ -83,6 +131,8 @@ class DataListLayout extends Component {
 			displayOptionsIsOpen: false,
 			isLoading: false,
 			items: [],
+			value: '',
+			suggestions: [],
 		};
 	}
 	componentWillMount() {
@@ -215,10 +265,10 @@ class DataListLayout extends Component {
 	}
 	componentDidMount() {
 		this.dataListRender();
+		this.props.addProject(this.props.user);
 	}
 
 	dataListRender() {
-		this.props.getProjectList(this.props.user);
 		const {
 			selectedPageSize,
 			currentPage,
@@ -264,24 +314,36 @@ class DataListLayout extends Component {
 		return true;
 	};
 
-	render() {
-		const { projects, loading, error } = this.props.projectApp;
+	onChange = (event, { newValue, method }) => {
+		this.setState({
+			value: newValue,
+		});
+	};
 
+	onSuggestionsFetchRequested = ({ value }) => {
+		this.setState({
+			suggestions: getSuggestions(value),
+		});
+	};
+
+	onSuggestionsClearRequested = () => {
+		this.setState({
+			suggestions: [],
+		});
+	};
+
+	render() {
+		const { projects, loading, error, newProject } = this.props.projectApp;
 		const startIndex =
 			(this.state.currentPage - 1) * this.state.selectedPageSize;
 		const endIndex = this.state.currentPage * this.state.selectedPageSize;
 
-		// if (!this.state.isLoading) {
-		// 	const totalPerPage = Math.ceil(
-		// 		projects.length / this.state.selectedPageSize,
-		// 	);
-		// 	this.setState({
-		// 		totalItemCount: projects.length,
-		// 		totalPage: totalPerPage,
-		// 		selectedItems: [],
-		// 		isLoading: true,
-		// 	});
-		// }
+		const { value, suggestions } = this.state;
+		const inputProps = {
+			placeholder: "Type 'c'",
+			value,
+			onChange: this.onChange,
+		};
 
 		const { messages } = this.props.intl;
 		return (
@@ -291,67 +353,8 @@ class DataListLayout extends Component {
 						<Colxx xxs="12">
 							<div className="mb-2">
 								<h1>
-									<IntlMessages id="menu.list" />
+									<IntlMessages id="menu.new" />
 								</h1>
-
-								<div className="float-sm-right">
-									<NavLink to="/app/projects/new">
-										<Button
-											color="primary"
-											size="lg"
-											className="top-right-button"
-										>
-											<IntlMessages id="layouts.add-new" />
-										</Button>
-									</NavLink>
-									{'  '}
-
-									<ButtonDropdown
-										isOpen={this.state.dropdownSplitOpen}
-										toggle={this.toggleSplit}
-									>
-										<div className="btn btn-primary pl-4 pr-0 check-button">
-											<Label
-												for="checkAll"
-												className="custom-control custom-checkbox mb-0 d-inline-block"
-											>
-												<Input
-													className="custom-control-input"
-													type="checkbox"
-													id="checkAll"
-													checked={
-														this.state.selectedItems.length >=
-														this.state.items.length
-													}
-													onChange={() => this.handleChangeSelectAll(true)}
-												/>
-												<span
-													className={`custom-control-label ${
-														this.state.selectedItems.length > 0 &&
-														this.state.selectedItems.length <
-															this.state.items.length
-															? 'indeterminate'
-															: ''
-													}`}
-												/>
-											</Label>
-										</div>
-										<DropdownToggle
-											caret
-											color="primary"
-											className="dropdown-toggle-split pl-2 pr-2"
-										/>
-										<DropdownMenu right>
-											<DropdownItem>
-												<IntlMessages id="layouts.delete" />
-											</DropdownItem>
-											<DropdownItem>
-												<IntlMessages id="layouts.another-action" />
-											</DropdownItem>
-										</DropdownMenu>
-									</ButtonDropdown>
-								</div>
-
 								<BreadcrumbItems match={this.props.match} />
 							</div>
 
@@ -430,55 +433,9 @@ class DataListLayout extends Component {
 												/>
 											</svg>
 										</a>
-										<a
-											className={`mr-2 view-icon ${
-												this.state.displayMode === 'imagelist' ? 'active' : ''
-											}`}
-											onClick={() => this.changeDisplayMode('imagelist')}
-										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 19 19"
-											>
-												<path
-													className="view-icon-svg"
-													d="M7,2V8H1V2H7m.12-1H.88A.87.87,0,0,0,0,1.88V8.12A.87.87,0,0,0,.88,9H7.12A.87.87,0,0,0,8,8.12V1.88A.87.87,0,0,0,7.12,1Z"
-												/>
-												<path
-													className="view-icon-svg"
-													d="M17,2V8H11V2h6m.12-1H10.88a.87.87,0,0,0-.88.88V8.12a.87.87,0,0,0,.88.88h6.24A.87.87,0,0,0,18,8.12V1.88A.87.87,0,0,0,17.12,1Z"
-												/>
-												<path
-													className="view-icon-svg"
-													d="M7,12v6H1V12H7m.12-1H.88a.87.87,0,0,0-.88.88v6.24A.87.87,0,0,0,.88,19H7.12A.87.87,0,0,0,8,18.12V11.88A.87.87,0,0,0,7.12,11Z"
-												/>
-												<path
-													className="view-icon-svg"
-													d="M17,12v6H11V12h6m.12-1H10.88a.87.87,0,0,0-.88.88v6.24a.87.87,0,0,0,.88.88h6.24a.87.87,0,0,0,.88-.88V11.88a.87.87,0,0,0-.88-.88Z"
-												/>
-											</svg>
-										</a>
 									</span>
 
 									<div className="d-block d-md-inline-block">
-										<UncontrolledDropdown className="mr-1 float-md-left btn-group mb-1">
-											<DropdownToggle caret color="outline-dark" size="xs">
-												<IntlMessages id="layouts.orderby" />
-												{this.state.selectedOrderOption.label}
-											</DropdownToggle>
-											<DropdownMenu>
-												{this.state.orderOptions.map((order, index) => {
-													return (
-														<DropdownItem
-															key={index}
-															onClick={() => this.changeOrderBy(order.column)}
-														>
-															{order.label}
-														</DropdownItem>
-													);
-												})}
-											</DropdownMenu>
-										</UncontrolledDropdown>
 										<div className="search-sm d-inline-block float-md-left mr-1 mb-1 align-top">
 											<input
 												type="text"
@@ -489,7 +446,22 @@ class DataListLayout extends Component {
 											/>
 										</div>
 									</div>
-									<div className="float-md-right">
+									{/* newProject.carrier.articleNo */}
+
+									<Autosuggest
+										suggestions={suggestions}
+										onSuggestionsFetchRequested={
+											this.onSuggestionsFetchRequested
+										}
+										onSuggestionsClearRequested={
+											this.onSuggestionsClearRequested
+										}
+										getSuggestionValue={getSuggestionValue}
+										renderSuggestion={renderSuggestion}
+										inputProps={inputProps}
+									/>
+
+									{/* <div className="float-md-right">
 										<span className="text-muted text-small mr-1">{`${startIndex}-${endIndex} of ${
 											this.state.totalItemCount
 										} `}</span>
@@ -510,7 +482,7 @@ class DataListLayout extends Component {
 												})}
 											</DropdownMenu>
 										</UncontrolledDropdown>
-									</div>
+									</div> */}
 								</Collapse>
 							</div>
 							<Separator className="mb-5" />
@@ -518,53 +490,59 @@ class DataListLayout extends Component {
 					</Row>
 					<Row>
 						{loading ? (
-							projects.map(project => {
-								if (this.state.displayMode === 'imagelist') {
-									return (
-										<Colxx
-											sm="6"
-											lg="4"
-											xl="3"
-											className="mb-3"
-											key={project.guid}
-										>
-											<ContextMenuTrigger
-												id="menu_id"
-												data={project.guid}
-												collect={collect}
-											>
-												<Card
-													onClick={event =>
-														this.handleCheckChange(event, project.guid)
-													}
-													className={classnames({
-														active: this.state.selectedItems.includes(
-															project.guid,
-														),
-													})}
+							projects ? (
+								projects.map(project => {
+									if (this.state.displayMode === 'thumblist') {
+										return (
+											<Colxx xxs="12" key={project.guid} className="mb-3">
+												<ContextMenuTrigger
+													id="menu_id"
+													data={project.guid}
+													collect={collect}
 												>
-													<div className="position-relative">
+													<Card
+														onClick={event =>
+															this.handleCheckChange(event, project.guid)
+														}
+														className={classnames('d-flex flex-row', {
+															active: this.state.selectedItems.includes(
+																project.guid,
+															),
+														})}
+													>
 														<NavLink
 															to={`/app/projects/edit?p=${project.guid}`}
-															className="w-40 w-sm-100"
+															className="d-flex"
 														>
-															<CardImg
-																top
+															<img
 																alt={project.name}
 																src="https://cataas.com/cat?type=sq"
+																className="list-thumbnail responsive border-0"
 															/>
 														</NavLink>
-														<Badge
-															color={project.statusColor}
-															pill
-															className="position-absolute badge-top-left"
-														>
-															{project.name}
-														</Badge>
-													</div>
-													<CardBody>
-														<Row>
-															<Colxx xxs="2">
+														<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+															<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+																<NavLink
+																	to={`/app/projects/edit?p=${project.guid}`}
+																	className="w-40 w-sm-100"
+																>
+																	<p className="list-item-heading mb-1 truncate">
+																		{project.name}
+																	</p>
+																</NavLink>
+																<p className="mb-1 text-muted text-small w-15 w-sm-100">
+																	{project.name}
+																</p>
+																<p className="mb-1 text-muted text-small w-15 w-sm-100">
+																	{project.name}
+																</p>
+																<div className="w-15 w-sm-100">
+																	<Badge color={project.statusColor} pill>
+																		{project.name}
+																	</Badge>
+																</div>
+															</div>
+															<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
 																<CustomInput
 																	className="itemCheck mb-0"
 																	type="checkbox"
@@ -575,154 +553,78 @@ class DataListLayout extends Component {
 																	onChange={() => {}}
 																	label=""
 																/>
-															</Colxx>
-															<Colxx xxs="10" className="mb-3">
-																<CardSubtitle>{project.title}</CardSubtitle>
-																<CardText className="text-muted text-small mb-0 font-weight-light">
-																	{project.date}
-																</CardText>
-															</Colxx>
-														</Row>
-													</CardBody>
-												</Card>
-											</ContextMenuTrigger>
-										</Colxx>
-									);
-								} else if (this.state.displayMode === 'thumblist') {
-									return (
-										<Colxx xxs="12" key={project.guid} className="mb-3">
-											<ContextMenuTrigger
-												id="menu_id"
-												data={project.guid}
-												collect={collect}
-											>
-												<Card
-													onClick={event =>
-														this.handleCheckChange(event, project.guid)
-													}
-													className={classnames('d-flex flex-row', {
-														active: this.state.selectedItems.includes(
-															project.guid,
-														),
-													})}
+															</div>
+														</div>
+													</Card>
+												</ContextMenuTrigger>
+											</Colxx>
+										);
+									} else {
+										return (
+											<Colxx xxs="12" key={project.guid} className="mb-3">
+												<ContextMenuTrigger
+													id="menu_id"
+													data={project.guid}
+													collect={collect}
+													key={project.guid}
 												>
-													<NavLink
-														to={`/app/projects/edit?p=${project.guid}`}
-														className="d-flex"
+													<Card
+														onClick={event =>
+															this.handleCheckChange(event, project.guid)
+														}
+														className={classnames('d-flex flex-row', {
+															active: this.state.selectedItems.includes(
+																project.guid,
+															),
+														})}
 													>
-														<img
-															alt={project.name}
-															src="https://cataas.com/cat?type=sq"
-															className="list-thumbnail responsive border-0"
-														/>
-													</NavLink>
-													<div className="pl-2 d-flex flex-grow-1 min-width-zero">
-														<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-															<NavLink
-																to={`/app/projects/edit?p=${project.guid}`}
-																className="w-40 w-sm-100"
-															>
-																<p className="list-item-heading mb-1 truncate">
+														<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+															<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+																<NavLink
+																	to={`/app/projects/edit?p=${project.guid}`}
+																	className="w-40 w-sm-100"
+																>
+																	<p className="list-item-heading mb-1 truncate">
+																		{project.name}
+																	</p>
+																</NavLink>
+																<p className="mb-1 text-muted text-small w-15 w-sm-100">
 																	{project.name}
 																</p>
-															</NavLink>
-															<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																{project.name}
-															</p>
-															<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																{project.name}
-															</p>
-															<div className="w-15 w-sm-100">
-																<Badge color={project.statusColor} pill>
-																	{project.name}
-																</Badge>
-															</div>
-														</div>
-														<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
-															<CustomInput
-																className="itemCheck mb-0"
-																type="checkbox"
-																id={`check_${project.guid}`}
-																checked={this.state.selectedItems.includes(
-																	project.guid,
-																)}
-																onChange={() => {}}
-																label=""
-															/>
-														</div>
-													</div>
-												</Card>
-											</ContextMenuTrigger>
-										</Colxx>
-									);
-								} else {
-									return (
-										<Colxx xxs="12" key={project.guid} className="mb-3">
-											<ContextMenuTrigger
-												id="menu_id"
-												data={project.guid}
-												collect={collect}
-												key={project.guid}
-											>
-												<Card
-													onClick={event =>
-														this.handleCheckChange(event, project.guid)
-													}
-													className={classnames('d-flex flex-row', {
-														active: this.state.selectedItems.includes(
-															project.guid,
-														),
-													})}
-												>
-													<div className="pl-2 d-flex flex-grow-1 min-width-zero">
-														<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-															<NavLink
-																to={`/app/projects/edit?p=${project.guid}`}
-																className="w-40 w-sm-100"
-															>
-																<p className="list-item-heading mb-1 truncate">
+																<p className="mb-1 text-muted text-small w-15 w-sm-100">
 																	{project.name}
 																</p>
-															</NavLink>
-															<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																{project.name}
-															</p>
-															<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																{project.name}
-															</p>
-															<div className="w-15 w-sm-100">
-																<Badge color={project.statusColor} pill>
-																	{project.name}
-																</Badge>
+																<div className="w-15 w-sm-100">
+																	<Badge color={project.statusColor} pill>
+																		{project.name}
+																	</Badge>
+																</div>
+															</div>
+															<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
+																<CustomInput
+																	className="itemCheck mb-0"
+																	type="checkbox"
+																	id={`check_${project.guid}`}
+																	checked={this.state.selectedItems.includes(
+																		project.guid,
+																	)}
+																	onChange={() => {}}
+																	label=""
+																/>
 															</div>
 														</div>
-														<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
-															<CustomInput
-																className="itemCheck mb-0"
-																type="checkbox"
-																id={`check_${project.guid}`}
-																checked={this.state.selectedItems.includes(
-																	project.guid,
-																)}
-																onChange={() => {}}
-																label=""
-															/>
-														</div>
-													</div>
-												</Card>
-											</ContextMenuTrigger>
-										</Colxx>
-									);
-								}
-							})
+													</Card>
+												</ContextMenuTrigger>
+											</Colxx>
+										);
+									}
+								})
+							) : (
+								<h2>{'No data!'}</h2>
+							)
 						) : (
 							<div className="loading" />
 						)}
-						<Pagination
-							currentPage={this.state.currentPage}
-							totalPage={this.state.totalPage}
-							onChangePage={i => this.onChangePage(i)}
-						/>
 					</Row>
 				</div>
 
@@ -747,20 +649,24 @@ class DataListLayout extends Component {
 		);
 	}
 }
-const mapStateToProps = ({ authUser, settings, projectApp, firestore }) => {
+const mapStateToProps = ({
+	authUser,
+	settings,
+	projectApp /*, firestore*/,
+}) => {
 	const { user } = authUser;
 	const { locale } = settings;
-	return { user, locale, projectApp, firestore };
+	return { user, locale, projectApp /*, firestore */ };
 };
 
 export default compose(
 	connect(
 		mapStateToProps,
 		{
-			getProjectList,
+			addProject,
 		},
 	),
-	firestoreConnect(props => {
-		return [{ collection: 'projects', doc: props.user }];
-	}),
+	// firestoreConnect(props => {
+	// 	return [{ collection: 'projects', doc: props.user }];
+	// }),
 )(injectIntl(mouseTrap(DataListLayout)));

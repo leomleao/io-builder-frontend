@@ -2,12 +2,17 @@ import {
 	PROJECT_GET_LIST,
 	PROJECT_GET_LIST_SUCCESS,
 	PROJECT_GET_LIST_ERROR,
+	PROJECT_ADD,
+	PROJECT_ADD_SUCCESS,
+	PROJECT_ADD_ERROR,
 } from 'Constants/actionTypes';
+
+import currentDB from '../../data/currentDB';
 
 const INIT_STATE = {
 	allProjects: null,
 	projects: null,
-	newProjects: null,
+	newProject: null,
 	error: '',
 	filter: null,
 	searchKeyword: '',
@@ -18,6 +23,7 @@ const INIT_STATE = {
 	totalPage: 1,
 	totalItemCount: 0,
 	isLoading: true,
+	suggestions: currentDB,
 };
 
 export default (state = INIT_STATE, action) => {
@@ -33,6 +39,19 @@ export default (state = INIT_STATE, action) => {
 			};
 
 		case PROJECT_GET_LIST_ERROR:
+			return { ...state, loading: true, error: action.payload };
+
+		case PROJECT_ADD:
+			return { ...state, loading: false };
+
+		case PROJECT_ADD_SUCCESS:
+			return {
+				...state,
+				loading: true,
+				newProject: action.payload,
+			};
+
+		case PROJECT_ADD_ERROR:
 			return { ...state, loading: true, error: action.payload };
 
 		default:
