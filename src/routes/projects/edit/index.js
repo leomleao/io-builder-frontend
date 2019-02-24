@@ -45,7 +45,6 @@ import {
 class TodoApplication extends Component {
 	constructor(props) {
 		super(props);
-		console.log(props);
 		this.toggleSplit = this.toggleSplit.bind(this);
 		this.toggleModal = this.toggleModal.bind(this);
 		this.toggleDisplayOptions = this.toggleDisplayOptions.bind(this);

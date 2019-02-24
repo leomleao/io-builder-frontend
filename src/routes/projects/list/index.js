@@ -37,9 +37,10 @@ import Pagination from 'Components/List/Pagination';
 import mouseTrap from 'react-mousetrap';
 import axios from 'axios';
 
-import { userGetUid } from 'Redux/actions';
-
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+
+import { getProjectList } from 'Redux/actions';
+
 function collect(props) {
 	return { data: props.data };
 }
@@ -48,7 +49,6 @@ const apiUrl = 'http://api.crealeaf.com/cakes/paging';
 class DataListLayout extends Component {
 	constructor(props) {
 		super(props);
-		console.log(props.user);
 		this.toggleDisplayOptions = this.toggleDisplayOptions.bind(this);
 		this.toggleSplit = this.toggleSplit.bind(this);
 		this.dataListRender = this.dataListRender.bind(this);
@@ -82,6 +82,10 @@ class DataListLayout extends Component {
 			displayOptionsIsOpen: false,
 			isLoading: false,
 		};
+	}
+
+	componentDidMount() {
+		this.props.getProjectList();
 	}
 	componentWillMount() {
 		this.props.bindShortcut(['ctrl+a', 'command+a'], () =>
@@ -782,5 +786,7 @@ const mapStateToProps = ({ authUser, settings }) => {
 
 export default connect(
 	mapStateToProps,
-	{},
+	{
+		getProjectList,
+	},
 )(injectIntl(mouseTrap(DataListLayout)));
