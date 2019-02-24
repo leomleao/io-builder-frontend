@@ -84,12 +84,12 @@ class Sidebar extends Component {
 
 	getMenuClassesForResize(classes) {
 		const { menuHiddenBreakpoint, subHiddenBreakpoint } = this.props;
-		let nextClasses = classes.split(' ').filter(x => x != '');
+		let nextClasses = classes.split(' ').filter(x => x !== '');
 		const windowWidth = window.innerWidth;
 		if (windowWidth < menuHiddenBreakpoint) {
 			nextClasses.push('menu-mobile');
 		} else if (windowWidth < subHiddenBreakpoint) {
-			nextClasses = nextClasses.filter(x => x != 'menu-mobile');
+			nextClasses = nextClasses.filter(x => x !== 'menu-mobile');
 			if (
 				nextClasses.includes('menu-default') &&
 				!nextClasses.includes('menu-sub-hidden')
@@ -97,12 +97,12 @@ class Sidebar extends Component {
 				nextClasses.push('menu-sub-hidden');
 			}
 		} else {
-			nextClasses = nextClasses.filter(x => x != 'menu-mobile');
+			nextClasses = nextClasses.filter(x => x !== 'menu-mobile');
 			if (
 				nextClasses.includes('menu-default') &&
 				nextClasses.includes('menu-sub-hidden')
 			) {
-				nextClasses = nextClasses.filter(x => x != 'menu-sub-hidden');
+				nextClasses = nextClasses.filter(x => x !== 'menu-sub-hidden');
 			}
 		}
 		return nextClasses;
@@ -115,7 +115,7 @@ class Sidebar extends Component {
 	toggle() {
 		const { containerClassnames, menuClickCount } = this.props;
 		const currentClasses = containerClassnames
-			? containerClassnames.split(' ').filter(x => x != '')
+			? containerClassnames.split(' ').filter(x => x !== '')
 			: '';
 
 		if (currentClasses.includes('menu-sub-hidden') && menuClickCount === 3) {
@@ -144,13 +144,13 @@ class Sidebar extends Component {
 	}
 	setSelectedLiActive() {
 		const oldli = document.querySelector('.sub-menu  li.active');
-		if (oldli != null) {
+		if (oldli !== null) {
 			oldli.classList.remove('active');
 		}
 
 		/* set selected parent menu */
 		const selectedlink = document.querySelector('.sub-menu  a.active');
-		if (selectedlink != null) {
+		if (selectedlink !== null) {
 			selectedlink.parentElement.classList.add('active');
 			this.setState({
 				selectedParentMenu: selectedlink.parentElement.parentElement.getAttribute(
@@ -161,7 +161,7 @@ class Sidebar extends Component {
 			var selectedParentNoSubItem = document.querySelector(
 				'.main-menu  li a.active',
 			);
-			if (selectedParentNoSubItem != null) {
+			if (selectedParentNoSubItem !== null) {
 				this.setState({
 					selectedParentMenu: selectedParentNoSubItem.getAttribute('data-flag'),
 				});
@@ -205,7 +205,7 @@ class Sidebar extends Component {
 		e.preventDefault();
 		const { containerClassnames, menuClickCount } = this.props;
 		const currentClasses = containerClassnames
-			? containerClassnames.split(' ').filter(x => x != '')
+			? containerClassnames.split(' ').filter(x => x !== '')
 			: '';
 
 		if (!currentClasses.includes('menu-mobile')) {
@@ -315,28 +315,32 @@ class Sidebar extends Component {
 							>
 								<NavItem>
 									<NavLink to="/app/projects/list">
-										<i className="simple-icon-briefcase" />{' '}
-										<IntlMessages id="menu.chat" />
+										<i className="simple-icon-layers" />{' '}
+										<IntlMessages id="menu.list" />
 									</NavLink>
 								</NavItem>
 								<NavItem>
-									<NavLink to="/app/projects/analytics">
-										<i className="simple-icon-pie-chart" />{' '}
-										<IntlMessages id="menu.chat" />
-									</NavLink>
-								</NavItem>
-								<NavItem>
-									<NavLink to="/app/projects/ecommerce">
-										<i className="simple-icon-basket-loaded" />{' '}
-										<IntlMessages id="menu.chat" />
-									</NavLink>
-								</NavItem>
-								<NavItem>
-									<NavLink to="/app/projects/content">
+									<NavLink to="/app/projects/new">
 										<i className="simple-icon-doc" />{' '}
-										<IntlMessages id="menu.chat" />
+										<IntlMessages id="menu.new" />
 									</NavLink>
 								</NavItem>
+								{/*
+								  * TODO: Need to move edit inside list view
+								  * - Need to move edit inside list view
+								  *
+								<NavItem>
+									<NavLink to="/app/projects/edit">
+										<i className="simple-icon-pencil" />{' '}
+										<IntlMessages id="menu.edit" />
+									</NavLink>
+								</NavItem>
+								<NavItem>
+									<NavLink to="/app/projects/review">
+										<i className="simple-icon-eyeglass" />{' '}
+										<IntlMessages id="menu.review" />
+									</NavLink>
+								</NavItem> */}
 							</Nav>
 						</PerfectScrollbar>
 					</div>

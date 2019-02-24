@@ -1,7 +1,7 @@
 export const subHiddenBreakpoint = 1440;
 export const menuHiddenBreakpoint = 768;
 export const defaultMenuType = 'menu-default'; //'menu-sub-hidden', 'menu-hidden'
-export const defaultStartPath = '/app/projects/list';
+export const defaultStartPath = '/app/projects/edit';
 
 export const defaultLocale = 'en';
 export const localeOptions = [
@@ -21,4 +21,4 @@ export const firebaseConfig = {
 
 export const apiUrl = 'http://localhost:9000/api/';
 
-export const searchPath = '/app/projects/list';
+export const searchPath = '/app/projects/edit';

@@ -293,7 +293,7 @@ class TopNav extends Component {
 								>
 									<NavLink to="#" className="icon-menu-item">
 										<i className="iconsmind-Air-Balloon d-block" />{' '}
-										<IntlMessages id="menu.gogo" />
+										<IntlMessages id="menu.edit" />
 									</NavLink>
 									<NavLink to="#" className="icon-menu-item">
 										<i className="iconsmind-Pantone d-block" />{' '}
@@ -382,9 +382,10 @@ class TopNav extends Component {
 					<div className="user d-inline-block">
 						<UncontrolledDropdown className="dropdown-menu-right">
 							<DropdownToggle className="p-0" color="empty">
+								{/* TODO: User pic and name */}
 								<span className="name mr-1">Sarah Kortney</span>
 								<span>
-									<img alt="Profile" src="/assets/img/profile-pic-l.jpg" />
+									<img alt="Profile" src="https://cataas.com/cat?type=sq" />
 								</span>
 							</DropdownToggle>
 							<DropdownMenu className="mt-3" right>
