@@ -19,10 +19,11 @@ import {
 	Label,
 	CardText,
 	Badge,
+	FormGroup,
 } from 'reactstrap';
-import Autosuggest from 'react-autosuggest';
-import AutosuggestHighlightMatch from 'autosuggest-highlight/match';
-import AutosuggestHighlightParse from 'autosuggest-highlight/parse';
+// import Autosuggest from 'react-autosuggest';
+// import AutosuggestHighlightMatch from 'autosuggest-highlight/match';
+// import AutosuggestHighlightParse from 'autosuggest-highlight/parse';
 
 import ReactAutosuggest from 'Components/ReactAutosuggest';
 
@@ -45,57 +46,12 @@ import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 
 import { addProject } from 'Redux/actions';
-import currentDB from '../../../data/currentDB.json';
+import { carriers } from '../../../data/currentDB.json';
 
 function collect(props) {
 	return { data: props.data };
 }
 const apiUrl = 'http://api.crealeaf.com/cakes/paging';
-
-function escapeRegexCharacters(str) {
-	return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function getSuggestions(value) {
-	const escapedValue = escapeRegexCharacters(value.trim());
-
-	if (escapedValue === '') {
-		return [];
-	}
-
-	const regex = new RegExp('\\b' + escapedValue, 'i');
-
-	return currentDB.filter(material => regex.test(getSuggestionValue(material)));
-}
-
-function getSuggestionValue(suggestion) {
-	return `${suggestion.description} ${suggestion.useCase}`;
-}
-
-function renderSuggestion(suggestion, { query }) {
-	const suggestionText = `${suggestion.description} ${suggestion.useCase}`;
-	const matches = AutosuggestHighlightMatch(suggestionText, query);
-	const parts = AutosuggestHighlightParse(suggestionText, matches);
-	var divStyle = {
-		backgroundImage: 'url(' + suggestion.image + ')',
-	};
-
-	return (
-		<span className="suggestion-content" style={divStyle}>
-			<span className="name">
-				{parts.map((part, index) => {
-					const className = part.highlight ? 'highlight' : null;
-
-					return (
-						<span className={className} key={index}>
-							{part.text}
-						</span>
-					);
-				})}
-			</span>
-		</span>
-	);
-}
 
 class DataListLayout extends Component {
 	constructor(props) {
@@ -131,8 +87,6 @@ class DataListLayout extends Component {
 			displayOptionsIsOpen: false,
 			isLoading: false,
 			items: [],
-			value: '',
-			suggestions: [],
 		};
 	}
 	componentWillMount() {
@@ -314,21 +268,10 @@ class DataListLayout extends Component {
 		return true;
 	};
 
-	onChange = (event, { newValue, method }) => {
+	onSuggestionChange = (event, { newValue }) => {
+		console.info(newValue);
 		this.setState({
-			value: newValue,
-		});
-	};
-
-	onSuggestionsFetchRequested = ({ value }) => {
-		this.setState({
-			suggestions: getSuggestions(value),
-		});
-	};
-
-	onSuggestionsClearRequested = () => {
-		this.setState({
-			suggestions: [],
+			suggestionValue: newValue,
 		});
 	};
 
@@ -337,14 +280,6 @@ class DataListLayout extends Component {
 		const startIndex =
 			(this.state.currentPage - 1) * this.state.selectedPageSize;
 		const endIndex = this.state.currentPage * this.state.selectedPageSize;
-
-		const { value, suggestions } = this.state;
-		const inputProps = {
-			placeholder: "Type 'c'",
-			value,
-			onChange: this.onChange,
-		};
-
 		const { messages } = this.props.intl;
 		return (
 			<Fragment>
@@ -358,7 +293,7 @@ class DataListLayout extends Component {
 								<BreadcrumbItems match={this.props.match} />
 							</div>
 
-							<div className="mb-2">
+							<div className="mb-8">
 								<Button
 									color="empty"
 									className="pt-0 pl-0 d-inline-block d-md-none"
@@ -446,45 +381,32 @@ class DataListLayout extends Component {
 											/>
 										</div>
 									</div>
-									{/* newProject.carrier.articleNo */}
-
-									<Autosuggest
-										suggestions={suggestions}
-										onSuggestionsFetchRequested={
-											this.onSuggestionsFetchRequested
-										}
-										onSuggestionsClearRequested={
-											this.onSuggestionsClearRequested
-										}
-										getSuggestionValue={getSuggestionValue}
-										renderSuggestion={renderSuggestion}
-										inputProps={inputProps}
-									/>
-
-									{/* <div className="float-md-right">
-										<span className="text-muted text-small mr-1">{`${startIndex}-${endIndex} of ${
-											this.state.totalItemCount
-										} `}</span>
-										<UncontrolledDropdown className="d-inline-block">
-											<DropdownToggle caret color="outline-dark" size="xs">
-												{this.state.selectedPageSize}
-											</DropdownToggle>
-											<DropdownMenu right>
-												{this.state.pageSizes.map((size, index) => {
-													return (
-														<DropdownItem
-															key={index}
-															onClick={() => this.changePageSize(size)}
-														>
-															{size}
-														</DropdownItem>
-													);
-												})}
-											</DropdownMenu>
-										</UncontrolledDropdown>
-									</div> */}
 								</Collapse>
 							</div>
+							<FormGroup row>
+								<Label for="carrierArticle" sm={2}>
+									<IntlMessages id="project-carrier-article" />
+								</Label>
+								<Colxx sm={3}>
+									{loading ? (
+										<ReactAutosuggest
+											className="float-md-left"
+											id="carrierArticle"
+											placeholder={
+												newProject.carrier.articleNo ||
+												messages['project-missing-carrier-article']
+											}
+											getField="materialId"
+											data={carriers}
+											onChange={value => {
+												console.info(value);
+											}}
+										/>
+									) : (
+										<div />
+									)}
+								</Colxx>
+							</FormGroup>
 							<Separator className="mb-5" />
 						</Colxx>
 					</Row>

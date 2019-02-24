@@ -6349,21 +6349,21 @@ input:-webkit-autofill {
 //   color: #fff;
 // }
 
-// .suggestion-content {
-//   display: flex;
-//   align-items: center;
-//   background-repeat: no-repeat;
-// }
+.suggestion-content {
+  display: flex;
+  align-items: center;
+  background-repeat: no-repeat;
+}
 
-// .name {
-//   margin-left: 68px;
-//   line-height: 45px;
-// }
+.suggestion-name {
+  margin-left: 68px;
+  line-height: 45px;
+}
 
-// .highlight {
-//   color: #ee0000;
-//   font-weight: bold;
-// }
+.highlight {
+  color: #ee0000;
+  font-weight: bold;
+}
 
 // .react-autosuggest__suggestion--focused .highlight {
 //   color: #120000;

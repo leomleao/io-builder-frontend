@@ -6,6 +6,8 @@ Table of Contents
 02.User Login, Logout, Register
 03.Menu
 04.Error Page
+05.Layouts
+06.Projects
 */
 
 module.exports = {
@@ -150,7 +152,8 @@ module.exports = {
 	'layouts.bake-progress': 'Bake Progress',
 	'layouts.popularity': 'Popularity',
 	'layouts.comments': 'Comments',
-	'layouts.error-title': 'Ooops... looks like an error occurred!',
-	'layouts.error-code': 'Error code',
-	'layouts.go-back-home': 'GO BACK HOME',
+
+	/* 06.Projects */
+	'project-missing-carrier-article': 'Please, fill the carrier article No.',
+	'project-carrier-article': 'Carrier article No.',
 };
