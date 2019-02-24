@@ -20,6 +20,9 @@ import {
 	CardText,
 	Badge,
 	FormGroup,
+	CardTitle,
+	Form,
+	FormText,
 } from 'reactstrap';
 // import Autosuggest from 'react-autosuggest';
 // import AutosuggestHighlightMatch from 'autosuggest-highlight/match';
@@ -383,61 +386,178 @@ class DataListLayout extends Component {
 									</div>
 								</Collapse>
 							</div>
-							<FormGroup row>
-								<Label for="carrierArticle" sm={2}>
-									<IntlMessages id="project-carrier-article" />
-								</Label>
-								<Colxx sm={3}>
-									{loading ? (
-										<ReactAutosuggest
-											className="float-md-left"
-											id="carrierArticle"
-											placeholder={
-												newProject.carrier.articleNo ||
-												messages['project-missing-carrier-article']
-											}
-											getField="materialId"
-											data={carriers}
-											onChange={value => {
-												console.info(value);
-											}}
-										/>
-									) : (
-										<div />
-									)}
-								</Colxx>
-							</FormGroup>
+							<FormGroup row />
 							<Separator className="mb-5" />
 						</Colxx>
 					</Row>
+					<Row className="mb-4">
+						<Colxx xxs="12">
+							<Card>
+								<CardBody>
+									<CardTitle>
+										<IntlMessages id="project-basic-data" />
+									</CardTitle>
+									<FormGroup row>
+										<Colxx sm={6}>
+											<FormGroup>
+												<Label for="carrierArticle">
+													<IntlMessages id="project-carrier-article" />
+												</Label>
+												{loading ? (
+													<ReactAutosuggest
+														className="float-md-left"
+														id="carrierArticle"
+														placeholder={
+															newProject.carrier.articleNo ||
+															messages['project-missing-carrier-article']
+														}
+														getField="materialId"
+														data={carriers}
+														autocomplete="off"
+														onChange={value => {
+															console.info(value);
+														}}
+													/>
+												) : (
+													<div />
+												)}
+											</FormGroup>
+										</Colxx>
+									</FormGroup>
+									<FormGroup row>
+										<Colxx sm={6}>
+											<FormGroup>
+												<Label for="projectName">
+													<IntlMessages id="project-label-name" />
+												</Label>
+												<Input
+													type="text"
+													name="projectName"
+													id="projectName"
+													placeholder={messages['project-placeholder-name']}
+												/>
+											</FormGroup>
+										</Colxx>
+
+										<Colxx sm={12}>
+											<FormGroup>
+												<Label for="projectDescription">
+													<IntlMessages id="project-label-description" />
+												</Label>
+												<Input
+													type="textarea"
+													name="projectDescription"
+													id="projectDescription"
+													placeholder={
+														messages['project-placeholder-description']
+													}
+												/>
+											</FormGroup>
+										</Colxx>
+									</FormGroup>
+								</CardBody>
+							</Card>
+						</Colxx>
+					</Row>
+
+					<Separator className="mb-5" />
 					<Row>
+						{this.state.displayMode === 'thumblist' ? (
+							<Colxx xxs="12" key="header">
+								<Card
+									// onClick={event =>
+									// 	this.handleCheckChange(event, material.guid)
+									// }
+									style={{
+										borderRadius: 0,
+										boxShadow: 'none',
+									}}
+									className="d-flex flex-row"
+								>
+									<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+										<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+											<p className="mb-1 text-muted text-small w-15 w-sm-15">
+												<span className="mb-2">#</span>
+											</p>
+											<p className="list-item-heading mb-1 truncate w-60">
+												<IntlMessages id="project-header-material" />
+											</p>
+											<p className="mb-1 text-muted text-small w-15 w-sm-100">
+												<IntlMessages id="project-header-qty" />
+											</p>
+											<p className="mb-1 text-muted text-small w-15 w-sm-100">
+												<IntlMessages id="project-header-data" />
+											</p>
+											<p className="mb-1 text-muted text-small w-15 w-sm-100">
+												<IntlMessages id="project-header-amp" />
+											</p>
+											<p className="mb-1 text-muted text-small w-15 w-sm-100">
+												<IntlMessages id="project-header-relay" />
+											</p>
+										</div>
+									</div>
+								</Card>
+							</Colxx>
+						) : (
+							<Colxx xxs="12" key="header">
+								<Card
+									className="d-flex flex-row"
+									style={{
+										borderRadius: 0,
+										boxShadow: 'none',
+									}}
+								>
+									<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+										<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+											<p className="list-item-heading mb-1 truncate w-60">
+												<IntlMessages id="project-header-material" />
+											</p>
+											<p className="mb-1 text-muted text-small w-10 w-sm-100">
+												<IntlMessages id="project-header-qty" />
+											</p>
+											<p className="mb-1 text-muted text-small w-10 w-sm-100">
+												<IntlMessages id="project-header-data" />
+											</p>
+											<p className="mb-1 text-muted text-small w-10 w-sm-100">
+												<IntlMessages id="project-header-amp" />
+											</p>
+											<p className="mb-1 text-muted text-small w-20 w-sm-100">
+												<IntlMessages id="project-header-relay" />
+											</p>
+										</div>
+									</div>
+								</Card>
+							</Colxx>
+						)}
 						{loading ? (
-							projects ? (
-								projects.map(project => {
+							newProject &&
+							newProject.carrier &&
+							newProject.carrier.projectArticles ? (
+								newProject.carrier.projectArticles.map(material => {
 									if (this.state.displayMode === 'thumblist') {
 										return (
-											<Colxx xxs="12" key={project.guid} className="mb-3">
+											<Colxx xxs="12" key={material.guid} className="mb-3">
 												<ContextMenuTrigger
 													id="menu_id"
-													data={project.guid}
+													data={material.guid}
 													collect={collect}
 												>
 													<Card
 														onClick={event =>
-															this.handleCheckChange(event, project.guid)
+															this.handleCheckChange(event, material.guid)
 														}
 														className={classnames('d-flex flex-row', {
 															active: this.state.selectedItems.includes(
-																project.guid,
+																material.guid,
 															),
 														})}
 													>
 														<NavLink
-															to={`/app/projects/edit?p=${project.guid}`}
+															to={`/app/projects/edit?p=${material.guid}`}
 															className="d-flex"
 														>
 															<img
-																alt={project.name}
+																alt={material.name}
 																src="https://cataas.com/cat?type=sq"
 																className="list-thumbnail responsive border-0"
 															/>
@@ -445,22 +565,22 @@ class DataListLayout extends Component {
 														<div className="pl-2 d-flex flex-grow-1 min-width-zero">
 															<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
 																<NavLink
-																	to={`/app/projects/edit?p=${project.guid}`}
+																	to={`/app/projects/edit?p=${material.guid}`}
 																	className="w-40 w-sm-100"
 																>
 																	<p className="list-item-heading mb-1 truncate">
-																		{project.name}
+																		{material.name}
 																	</p>
 																</NavLink>
 																<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																	{project.name}
+																	{material.name}
 																</p>
 																<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																	{project.name}
+																	{material.name}
 																</p>
 																<div className="w-15 w-sm-100">
-																	<Badge color={project.statusColor} pill>
-																		{project.name}
+																	<Badge color={material.statusColor} pill>
+																		{material.name}
 																	</Badge>
 																</div>
 															</div>
@@ -468,9 +588,9 @@ class DataListLayout extends Component {
 																<CustomInput
 																	className="itemCheck mb-0"
 																	type="checkbox"
-																	id={`check_${project.guid}`}
+																	id={`check_${material.guid}`}
 																	checked={this.state.selectedItems.includes(
-																		project.guid,
+																		material.guid,
 																	)}
 																	onChange={() => {}}
 																	label=""
@@ -483,42 +603,42 @@ class DataListLayout extends Component {
 										);
 									} else {
 										return (
-											<Colxx xxs="12" key={project.guid} className="mb-3">
+											<Colxx xxs="12" key={material.guid} className="mb-3">
 												<ContextMenuTrigger
 													id="menu_id"
-													data={project.guid}
+													data={material.guid}
 													collect={collect}
-													key={project.guid}
+													key={material.guid}
 												>
 													<Card
 														onClick={event =>
-															this.handleCheckChange(event, project.guid)
+															this.handleCheckChange(event, material.guid)
 														}
 														className={classnames('d-flex flex-row', {
 															active: this.state.selectedItems.includes(
-																project.guid,
+																material.guid,
 															),
 														})}
 													>
 														<div className="pl-2 d-flex flex-grow-1 min-width-zero">
 															<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
 																<NavLink
-																	to={`/app/projects/edit?p=${project.guid}`}
+																	to={`/app/projects/edit?p=${material.guid}`}
 																	className="w-40 w-sm-100"
 																>
 																	<p className="list-item-heading mb-1 truncate">
-																		{project.name}
+																		{material.name}
 																	</p>
 																</NavLink>
 																<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																	{project.name}
+																	{material.name}
 																</p>
 																<p className="mb-1 text-muted text-small w-15 w-sm-100">
-																	{project.name}
+																	{material.name}
 																</p>
 																<div className="w-15 w-sm-100">
-																	<Badge color={project.statusColor} pill>
-																		{project.name}
+																	<Badge color={material.statusColor} pill>
+																		{material.name}
 																	</Badge>
 																</div>
 															</div>
@@ -526,9 +646,9 @@ class DataListLayout extends Component {
 																<CustomInput
 																	className="itemCheck mb-0"
 																	type="checkbox"
-																	id={`check_${project.guid}`}
+																	id={`check_${material.guid}`}
 																	checked={this.state.selectedItems.includes(
-																		project.guid,
+																		material.guid,
 																	)}
 																	onChange={() => {}}
 																	label=""
@@ -546,6 +666,115 @@ class DataListLayout extends Component {
 							)
 						) : (
 							<div className="loading" />
+						)}
+						{this.state.displayMode === 'thumblist' ? (
+							<Colxx xxs="12" key="{material.guid}" className="mb-3">
+								<ContextMenuTrigger
+									id="menu_id"
+									data="{material.guid}"
+									collect={collect}
+								>
+									<Card
+										// onClick={event =>
+										// 	this.handleCheckChange(event, material.guid)
+										// }
+										className="d-flex flex-row"
+									>
+										<NavLink
+											to={`/app/projects/edit?p=${'material.guid'}`}
+											className="d-flex"
+										>
+											<img
+												alt={'material.name'}
+												src="https://cataas.com/cat?type=sq"
+												className="list-thumbnail responsive border-0"
+											/>
+										</NavLink>
+										<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+											<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+												<NavLink
+													to={`/app/projects/edit?p=${'material.guid'}`}
+													className="w-40 w-sm-100"
+												>
+													<p className="list-item-heading mb-1 truncate">
+														{'material.name'}
+													</p>
+												</NavLink>
+												<p className="mb-1 text-muted text-small w-15 w-sm-100">
+													{'material.name'}
+												</p>
+												<p className="mb-1 text-muted text-small w-15 w-sm-100">
+													{'material.name'}
+												</p>
+												<div className="w-15 w-sm-100">
+													<Badge color={'material.statusColor'} pill>
+														{'material.name'}
+													</Badge>
+												</div>
+												<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
+													<CustomInput
+														className="itemCheck mb-0"
+														type="checkbox"
+														id={`check_${'material.guid'}`}
+														// checked={this.state.selectedItems.includes(
+														// 	material.guid,
+														// )}
+														onChange={() => {}}
+														label=""
+													/>
+												</div>
+											</div>
+										</div>
+									</Card>
+								</ContextMenuTrigger>
+							</Colxx>
+						) : (
+							<Colxx xxs="12" key={'material.guid'} className="mb-3">
+								<ContextMenuTrigger
+									id="menu_id"
+									data={'material.guid'}
+									collect={collect}
+									key={'material.guid'}
+								>
+									<Card className="d-flex flex-row">
+										<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+											<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+												<NavLink
+													to={`/app/projects/edit?p=${'material.guid'}`}
+													className="w-40 w-sm-100"
+												>
+													<p className="list-item-heading mb-1 truncate">
+														{'material.name'}
+													</p>
+												</NavLink>
+												<p className="mb-1 text-muted text-small w-15 w-sm-100">
+													{'material.name'}
+												</p>
+												<p className="mb-1 text-muted text-small w-15 w-sm-100">
+													{'material.name'}
+												</p>
+												<div className="w-15 w-sm-100">
+													<Badge color={'material.statusColor'} pill>
+														{'material.name'}
+													</Badge>
+												</div>
+											</div>
+											<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
+												<CustomInput
+													className="itemCheck mb-0"
+													type="checkbox"
+													id={`check_${'material.guid'}`}
+													// checked={this.state.selectedItems.includes(
+													// 	material.guid,
+													// )}
+													onChange={() => {}}
+													label=""
+												/>
+											</div>
+										</div>
+									</Card>
+								</ContextMenuTrigger>
+							</Colxx>
 						)}
 					</Row>
 				</div>

@@ -154,6 +154,17 @@ module.exports = {
 	'layouts.comments': 'Comments',
 
 	/* 06.Projects */
-	'project-missing-carrier-article': 'Please, fill the carrier article No.',
+	'project-basic-data': 'Basic data of the project',
+	'project-missing-carrier-article':
+		'Please, fill the carrier article No. E.g: PFC-200',
 	'project-carrier-article': 'Carrier article No.',
+	'project-label-name': "Project's Name",
+	'project-placeholder-name': "Project's Name",
+	'project-label-description': 'Description',
+	'project-placeholder-description': 'Explain a little bit this project.',
+	'project-header-material': 'Material',
+	'project-header-qty': 'quantity',
+	'project-header-data': 'data consump.',
+	'project-header-amp': 'A consump.',
+	'project-header-relay': 'relay?',
 };

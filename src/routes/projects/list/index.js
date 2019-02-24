@@ -271,18 +271,6 @@ class DataListLayout extends Component {
 			(this.state.currentPage - 1) * this.state.selectedPageSize;
 		const endIndex = this.state.currentPage * this.state.selectedPageSize;
 
-		// if (!this.state.isLoading) {
-		// 	const totalPerPage = Math.ceil(
-		// 		projects.length / this.state.selectedPageSize,
-		// 	);
-		// 	this.setState({
-		// 		totalItemCount: projects.length,
-		// 		totalPage: totalPerPage,
-		// 		selectedItems: [],
-		// 		isLoading: true,
-		// 	});
-		// }
-
 		const { messages } = this.props.intl;
 		return (
 			<Fragment>
@@ -517,7 +505,7 @@ class DataListLayout extends Component {
 						</Colxx>
 					</Row>
 					<Row>
-						{loading ? (
+						{loading && projects ? (
 							projects.map(project => {
 								if (this.state.displayMode === 'imagelist') {
 									return (

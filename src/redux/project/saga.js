@@ -1,10 +1,10 @@
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
-import { PROJECT_ADD, PROJECT_GET_LIST } from 'Constants/actionTypes';
+import { PROJECT_SAVE, PROJECT_GET_LIST } from 'Constants/actionTypes';
 import {
 	getProjectListSuccess,
 	getProjectListError,
-	addProjectSuccess,
-	addProjectError,
+	saveProjectSuccess,
+	saveProjectError,
 } from './actions';
 // import colRef from 'redux-saga-firebase';
 
@@ -13,34 +13,6 @@ import 'firebase/firestore'; // make sure you add this for firestore
 
 import rsf from '../firestore';
 import uuid from 'uuid/v4';
-// const getProjectListRequest = async () => {
-// 	return await new Promise((success, fail) => {
-// 		setTimeout(() => {
-// 			success(todoData.data);
-// 		}, 1000);
-// 	})
-// 		.then(response => response)
-// 		.catch(error => error);
-// };
-
-// const getProjectListRequest = async () => {
-// 	console.log('LAROUUUU');
-// 	return await new Promise(async (success, fail) => {
-// 		const snapshot = await rsf.firestore.getCollection('projects');
-// 		const snapshot = yield call(rsf.firestore.getCollection, 'users');
-// 		let projects;
-// 		console.info(snapshot);
-// 		// await snapshot.docs.forEach(project => {
-// 		// 	projects = {
-// 		// 		...projects,
-// 		// 		[project.id]: project.data(),
-// 		// 	};
-// 		// });
-// 		success(projects);
-// 	})
-// 		.then(projects => projects)
-// 		.catch(error => error);
-// };
 
 function* getProjectListRequest(ownerUid) {
 	try {
@@ -61,7 +33,7 @@ function* getProjectListRequest(ownerUid) {
 	}
 }
 
-const addProjectRequest = async ownerUid => {
+const saveProjectRequest = async ownerUid => {
 	const newProject = {
 		guid: uuid(),
 		name: null,
@@ -91,12 +63,12 @@ function* getProjectListItems({ payload }) {
 	}
 }
 
-function* addProject({ payload }) {
+function* saveProject({ payload }) {
 	try {
-		const response = yield call(addProjectRequest, payload);
-		yield put(addProjectSuccess(response));
+		const response = yield call(saveProjectRequest, payload);
+		yield put(saveProjectSuccess(response));
 	} catch (error) {
-		yield put(addProjectError(error));
+		yield put(saveProjectError(error));
 	}
 }
 
@@ -105,7 +77,7 @@ export function* watchGetList() {
 }
 
 export function* wathcAddProject() {
-	yield takeEvery(PROJECT_ADD, addProject);
+	yield takeEvery(PROJECT_SAVE, saveProject);
 }
 
 export default function* rootSaga() {
