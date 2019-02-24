@@ -3,7 +3,7 @@ import createSagaMiddleware from 'redux-saga';
 import reducers from './reducers';
 import sagas from './sagas';
 
-import { reduxFirestore, getFirestore } from 'redux-firestore';
+import { reduxFirestore } from 'redux-firestore';
 import { reactReduxFirebase, getFirebase } from 'react-redux-firebase';
 
 import { database } from '../firebase';

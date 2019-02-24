@@ -1,6 +1,10 @@
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
 import { PROJECT_GET_LIST } from 'Constants/actionTypes';
 import { getProjectListSuccess, getProjectListError } from './actions';
+// import colRef from 'redux-saga-firebase';
+
+import firebase from 'firebase/app';
+import 'firebase/firestore'; // make sure you add this for firestore
 
 import rsf from '../firestore';
 import todoData from '../../data/todos.json';
@@ -35,13 +39,22 @@ import todoData from '../../data/todos.json';
 // };
 
 function* getProjectListRequest(ownerId) {
-	console.info(ownerId);
-	const userProjects = yield call(
-		rsf.firestore.getDocument,
-		'projects/' + ownerId,
-	);
-
-	return userProjects.data().projects;
+	try {
+		const snapshot = yield call(
+			rsf.firestore.getCollection,
+			firebase
+				.firestore()
+				.collection('projects')
+				.where('owner', '==', ownerId),
+		);
+		let projects = [];
+		snapshot.forEach(project => {
+			projects = [...projects, project.data()];
+		});
+		return projects;
+	} catch (error) {
+		console.error(error);
+	}
 }
 
 function* getProjectListItems({ payload }) {

@@ -11,7 +11,7 @@ const reducers = combineReducers({
 	settings,
 	authUser,
 	todoApp,
-	project: projectApp,
+	projectApp,
 	firestore: firestoreReducer,
 });
 

@@ -5,9 +5,9 @@ import {
 } from 'Constants/actionTypes';
 
 const INIT_STATE = {
-	allTodoItems: null,
+	allProjects: null,
 	projects: null,
-	project: null,
+	newProjects: null,
 	error: '',
 	filter: null,
 	searchKeyword: '',
@@ -15,6 +15,9 @@ const INIT_STATE = {
 	loading: false,
 	categories: ['Flexbox', 'Sass', 'React'],
 	selectedItems: [],
+	totalPage: 1,
+	totalItemCount: 0,
+	isLoading: true,
 };
 
 export default (state = INIT_STATE, action) => {
@@ -26,7 +29,6 @@ export default (state = INIT_STATE, action) => {
 			return {
 				...state,
 				loading: true,
-				project: action.payload,
 				projects: action.payload,
 			};
 
