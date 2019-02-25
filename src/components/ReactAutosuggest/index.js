@@ -55,7 +55,11 @@ export default class ReactAutosuggest extends React.Component {
 		};
 	}
 
-	getSuggestionValue = suggestion => suggestion[this.props.getField || 'name'];
+	getSuggestionValue = suggestion => {
+		const value = suggestion[this.props.getField || 'name'];
+		this.props.onComplete && this.props.onComplete(value);
+		return value;
+	};
 
 	getSuggestions = value => {
 		const escapedValue = escapeRegexCharacters(value.trim());

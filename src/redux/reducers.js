@@ -4,6 +4,7 @@ import menu from './menu/reducer';
 import authUser from './auth/reducer';
 import todoApp from './todo/reducer';
 import projectApp from './project/reducer';
+import materials from './materials/reducer';
 import { firestoreReducer } from 'redux-firestore';
 
 const reducers = combineReducers({
@@ -12,6 +13,7 @@ const reducers = combineReducers({
 	authUser,
 	todoApp,
 	projectApp,
+	materials,
 	firestore: firestoreReducer,
 });
 

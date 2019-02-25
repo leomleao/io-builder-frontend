@@ -167,4 +167,8 @@ module.exports = {
 	'project-header-data': 'data consump.',
 	'project-header-amp': 'A consump.',
 	'project-header-relay': 'relay?',
+	'project-new-material-label-article': 'Material ID',
+	'project-new-material-placeholder-article': 'I/O ID e.g 750-600',
+	'project-new-material-label-quantity': 'quantity',
+	'project-new-material-label-add': 'ADD',
 };

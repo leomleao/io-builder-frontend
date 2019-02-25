@@ -48,8 +48,10 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { firestoreConnect } from 'react-redux-firebase';
 import { compose } from 'redux';
 
-import { addProject } from 'Redux/actions';
-import { carriers } from '../../../data/currentDB.json';
+import { addProject, getMaterial } from 'Redux/actions';
+import { carriers, materials } from '../../../data/currentDB.json';
+
+import uuid from 'uuid/v4';
 
 function collect(props) {
 	return { data: props.data };
@@ -90,6 +92,8 @@ class DataListLayout extends Component {
 			displayOptionsIsOpen: false,
 			isLoading: false,
 			items: [],
+			materials: [],
+			newMaterial: null,
 		};
 	}
 	componentWillMount() {
@@ -280,6 +284,7 @@ class DataListLayout extends Component {
 
 	render() {
 		const { projects, loading, error, newProject } = this.props.projectApp;
+		const { material } = this.props.materials;
 		const startIndex =
 			(this.state.currentPage - 1) * this.state.selectedPageSize;
 		const endIndex = this.state.currentPage * this.state.selectedPageSize;
@@ -479,7 +484,7 @@ class DataListLayout extends Component {
 											<p className="mb-1 text-muted text-small w-15 w-sm-15">
 												<span className="mb-2">#</span>
 											</p>
-											<p className="list-item-heading mb-1 truncate w-60">
+											<p className="list-item-heading mb-1 truncate w-60 w-sm-100">
 												<IntlMessages id="project-header-material" />
 											</p>
 											<p className="mb-1 text-muted text-small w-15 w-sm-100">
@@ -509,7 +514,7 @@ class DataListLayout extends Component {
 								>
 									<div className="pl-2 d-flex flex-grow-1 min-width-zero">
 										<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-											<p className="list-item-heading mb-1 truncate w-60">
+											<p className="list-item-heading mb-1 truncate w-35 w-sm-100">
 												<IntlMessages id="project-header-material" />
 											</p>
 											<p className="mb-1 text-muted text-small w-10 w-sm-100">
@@ -521,8 +526,11 @@ class DataListLayout extends Component {
 											<p className="mb-1 text-muted text-small w-10 w-sm-100">
 												<IntlMessages id="project-header-amp" />
 											</p>
-											<p className="mb-1 text-muted text-small w-20 w-sm-100">
+											<p className="mb-1 text-muted text-small w-10 w-sm-100">
 												<IntlMessages id="project-header-relay" />
+											</p>
+											<p className="mb-1 text-muted text-small w-10 w-sm-100">
+												<span className="mb-2" />
 											</p>
 										</div>
 									</div>
@@ -668,96 +676,43 @@ class DataListLayout extends Component {
 							<div className="loading" />
 						)}
 						{this.state.displayMode === 'thumblist' ? (
-							<Colxx xxs="12" key="{material.guid}" className="mb-3">
-								<ContextMenuTrigger
-									id="menu_id"
-									data="{material.guid}"
-									collect={collect}
+							<Colxx xxs="12" key="addMaterial" className="mb-3">
+								<Card
+									// onClick={event =>
+									// 	this.handleCheckChange(event, material.guid)
+									// }
+									className="d-flex flex-row"
 								>
-									<Card
-										// onClick={event =>
-										// 	this.handleCheckChange(event, material.guid)
-										// }
-										className="d-flex flex-row"
+									<NavLink
+										to={`/app/projects/edit?p=${'material.guid'}`}
+										className="d-flex"
 									>
-										<NavLink
-											to={`/app/projects/edit?p=${'material.guid'}`}
-											className="d-flex"
-										>
-											<img
-												alt={'material.name'}
-												src="https://cataas.com/cat?type=sq"
-												className="list-thumbnail responsive border-0"
-											/>
-										</NavLink>
-										<div className="pl-2 d-flex flex-grow-1 min-width-zero">
-											<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-												<NavLink
-													to={`/app/projects/edit?p=${'material.guid'}`}
-													className="w-40 w-sm-100"
-												>
-													<p className="list-item-heading mb-1 truncate">
-														{'material.name'}
-													</p>
-												</NavLink>
-												<p className="mb-1 text-muted text-small w-15 w-sm-100">
-													{'material.name'}
+										<img
+											alt={'material.name'}
+											src="https://cataas.com/cat?type=sq"
+											className="list-thumbnail responsive border-0"
+										/>
+									</NavLink>
+									<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+										<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+											<NavLink
+												to={`/app/projects/edit?p=${'material.guid'}`}
+												className="w-40 w-sm-100"
+											>
+												<p className="list-item-heading mb-1 truncate">
+													{'material.dsdfname'}
 												</p>
-												<p className="mb-1 text-muted text-small w-15 w-sm-100">
+											</NavLink>
+											<p className="mb-1 text-muted text-small w-15 w-sm-100">
+												{'material.name'}
+											</p>
+											<p className="mb-1 text-muted text-small w-15 w-sm-100">
+												{'material.name'}
+											</p>
+											<div className="w-15 w-sm-100">
+												<Badge color={'material.statusColor'} pill>
 													{'material.name'}
-												</p>
-												<div className="w-15 w-sm-100">
-													<Badge color={'material.statusColor'} pill>
-														{'material.name'}
-													</Badge>
-												</div>
-												<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
-													<CustomInput
-														className="itemCheck mb-0"
-														type="checkbox"
-														id={`check_${'material.guid'}`}
-														// checked={this.state.selectedItems.includes(
-														// 	material.guid,
-														// )}
-														onChange={() => {}}
-														label=""
-													/>
-												</div>
-											</div>
-										</div>
-									</Card>
-								</ContextMenuTrigger>
-							</Colxx>
-						) : (
-							<Colxx xxs="12" key={'material.guid'} className="mb-3">
-								<ContextMenuTrigger
-									id="menu_id"
-									data={'material.guid'}
-									collect={collect}
-									key={'material.guid'}
-								>
-									<Card className="d-flex flex-row">
-										<div className="pl-2 d-flex flex-grow-1 min-width-zero">
-											<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-												<NavLink
-													to={`/app/projects/edit?p=${'material.guid'}`}
-													className="w-40 w-sm-100"
-												>
-													<p className="list-item-heading mb-1 truncate">
-														{'material.name'}
-													</p>
-												</NavLink>
-												<p className="mb-1 text-muted text-small w-15 w-sm-100">
-													{'material.name'}
-												</p>
-												<p className="mb-1 text-muted text-small w-15 w-sm-100">
-													{'material.name'}
-												</p>
-												<div className="w-15 w-sm-100">
-													<Badge color={'material.statusColor'} pill>
-														{'material.name'}
-													</Badge>
-												</div>
+												</Badge>
 											</div>
 											<div className="custom-control custom-checkbox pl-1 align-self-center pr-4">
 												<CustomInput
@@ -772,8 +727,90 @@ class DataListLayout extends Component {
 												/>
 											</div>
 										</div>
-									</Card>
-								</ContextMenuTrigger>
+									</div>
+								</Card>
+							</Colxx>
+						) : (
+							<Colxx xxs="12" key="addMaterial" className="mb-3">
+								<Card className="d-flex flex-row">
+									<div className="pl-2 d-flex flex-grow-1 min-width-zero">
+										<div className="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+											{/* <p className="list-item-heading mb-1 truncate w-40 w-sm-100">
+												{'material.naasdasdme'}
+											</p> */}
+											<FormGroup className="mb-1 w-35 w-sm-100">
+												<Label for="newMaterial">
+													<IntlMessages id="project-new-material-label-article" />
+												</Label>
+												<ReactAutosuggest
+													className="float-md-left"
+													id="newMaterial"
+													placeholder={
+														messages['project-new-material-placeholder-article']
+													}
+													getField="materialId"
+													data={materials}
+													autocomplete="off"
+													onComplete={value => {
+														console.info('YAY', value);
+														this.props.getMaterial(value);
+													}}
+												/>
+											</FormGroup>
+											<FormGroup className="mb-1 text-muted text-smallmb-1 w-10 w-sm-100">
+												<Label for="newMaterialQuantity">
+													<IntlMessages id="project-new-material-label-quantity" />
+												</Label>
+												<Input
+													type="number"
+													id="newMaterialQuantity"
+													step="1"
+													min="0"
+												/>
+											</FormGroup>
+											{material ? (
+												<p className="mb-1 text-muted text-small w-10 w-sm-100">
+													{material.dataAmpConsuption}
+												</p>
+											) : (
+												<p className="mb-1 text-muted text-small w-10 w-sm-100">
+													-
+												</p>
+											)}
+											{material ? (
+												<p className="mb-1 text-muted text-small w-10 w-sm-100">
+													{material.ampConsuption}
+												</p>
+											) : (
+												<p className="mb-1 text-muted text-small w-10 w-sm-100">
+													-
+												</p>
+											)}
+											<div className="custom-control custom-checkbox pl-1 align-self-center pr-4 w-10 w-sm-100">
+												<CustomInput
+													className="itemCheck mb-0"
+													type="checkbox"
+													id={`check_${'material.guid'}`}
+													// checked={this.state.selectedItems.includes(
+													// 	material.guid,
+													// )}
+													onChange={() => {}}
+													label=""
+												/>
+											</div>
+											<div className="custom-control custom-checkbox pl-1 align-self-center pr-4 w-10 w-sm-100">
+												<Button
+													color="primary"
+													size="lg"
+													className="top-right-button"
+													onClick={this.toggleModal}
+												>
+													<IntlMessages id="project-new-material-label-add" />
+												</Button>
+											</div>
+										</div>
+									</div>
+								</Card>
 							</Colxx>
 						)}
 					</Row>
@@ -803,11 +840,12 @@ class DataListLayout extends Component {
 const mapStateToProps = ({
 	authUser,
 	settings,
-	projectApp /*, firestore*/,
+	projectApp,
+	materials /*, firestore*/,
 }) => {
 	const { user } = authUser;
 	const { locale } = settings;
-	return { user, locale, projectApp /*, firestore */ };
+	return { user, locale, projectApp, materials /*, firestore */ };
 };
 
 export default compose(
@@ -815,6 +853,7 @@ export default compose(
 		mapStateToProps,
 		{
 			addProject,
+			getMaterial,
 		},
 	),
 	// firestoreConnect(props => {
